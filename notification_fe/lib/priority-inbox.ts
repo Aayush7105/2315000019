@@ -338,9 +338,12 @@ export async function fetchPriorityInbox(limit = 10, sourceUrl = DEFAULT_NOTIFIC
 
   try {
     const response = await fetch(sourceUrl, {
+      method: "POST",
       cache: "no-store",
+      body: JSON.stringify({ limit }),
       headers: {
         accept: "application/json",
+        "content-type": "application/json",
         ...(process.env.NOTIFICATION_API_TOKEN
           ? { authorization: `Bearer ${process.env.NOTIFICATION_API_TOKEN}` }
           : {}),

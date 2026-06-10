@@ -1,34 +1,14 @@
+import { FiBell, FiTrendingUp, FiInbox } from "react-icons/fi";
 import { logFrontendInfo } from "@/lib/logging";
-import { headers } from "next/headers";
-import { type PriorityInboxResponse } from "@/lib/priority-inbox";
+import {
+  fetchPriorityInbox,
+  type PriorityInboxResponse,
+} from "@/lib/priority-inbox";
 
 export const dynamic = "force-dynamic";
 
-async function getInboxUrl() {
-  const requestHeaders = await headers();
-  const forwardedProto = requestHeaders.get("x-forwarded-proto");
-  const host = requestHeaders.get("host");
-
-  if (host) {
-    return `${forwardedProto || "http"}://${host}/api/notifications?limit=10`;
-  }
-
-  return process.env.NEXT_PUBLIC_APP_URL
-    ? `${process.env.NEXT_PUBLIC_APP_URL}/api/notifications?limit=10`
-    : "http://localhost:3000/api/notifications?limit=10";
-}
-
 export default async function Home() {
-  const inboxUrl = await getInboxUrl();
-  const response = await fetch(inboxUrl, {
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    throw new Error(`Unable to load priority inbox: ${response.status}`);
-  }
-
-  const inbox = (await response.json()) as PriorityInboxResponse;
+  const inbox = (await fetchPriorityInbox(10)) as PriorityInboxResponse;
 
   await logFrontendInfo({
     packageName: "home-page",
@@ -44,102 +24,165 @@ export default async function Home() {
   const notifications = inbox.notifications.slice(0, 10);
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-      <header className="mb-6 border-b border-slate-200 pb-4">
-        <h1 className="text-2xl font-semibold text-slate-950">
-          Priority Inbox
-        </h1>
-        <p className="mt-2 text-sm text-slate-600">
-          Stage 1: fetched notifications through the local middleware-backed
-          route.
-        </p>
-      </header>
-
-      <section className="mb-6 grid gap-3 text-sm text-slate-700 sm:grid-cols-3">
-        <div className="rounded border border-slate-200 bg-white px-4 py-3">
-          <div className="font-medium text-slate-500">Source API</div>
-          <div className="mt-1 break-all">{inbox.sourceUrl}</div>
-        </div>
-        <div className="rounded border border-slate-200 bg-white px-4 py-3">
-          <div className="font-medium text-slate-500">Fetched</div>
-          <div className="mt-1">{inbox.fetchedCount}</div>
-        </div>
-        <div className="rounded border border-slate-200 bg-white px-4 py-3">
-          <div className="font-medium text-slate-500">Showing top</div>
-          <div className="mt-1">{inbox.limit}</div>
-        </div>
-      </section>
-
-      <section>
-        <h2 className="mb-3 text-lg font-semibold text-slate-950">
-          Notifications
-        </h2>
-        {notifications.length > 0 ? (
-          <div className="overflow-hidden rounded border border-slate-200 bg-white">
-            <table className="w-full border-collapse text-left text-sm">
-              <thead className="bg-slate-50 text-slate-600">
-                <tr>
-                  <th className="border-b border-slate-200 px-4 py-3 font-medium">
-                    Rank
-                  </th>
-                  <th className="border-b border-slate-200 px-4 py-3 font-medium">
-                    Title
-                  </th>
-                  <th className="border-b border-slate-200 px-4 py-3 font-medium">
-                    Message
-                  </th>
-                  <th className="border-b border-slate-200 px-4 py-3 font-medium">
-                    Bucket
-                  </th>
-                  <th className="border-b border-slate-200 px-4 py-3 font-medium">
-                    Unread
-                  </th>
-                  <th className="border-b border-slate-200 px-4 py-3 font-medium">
-                    Score
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {notifications.map((notification, index) => (
-                  <tr
-                    key={notification.id}
-                    className="align-top odd:bg-white even:bg-slate-50/60"
-                  >
-                    <td className="border-b border-slate-200 px-4 py-3">
-                      {index + 1}
-                    </td>
-                    <td className="border-b border-slate-200 px-4 py-3 font-medium text-slate-950">
-                      {notification.title}
-                    </td>
-                    <td className="border-b border-slate-200 px-4 py-3 text-slate-700">
-                      {notification.message}
-                      <div className="mt-1 text-xs text-slate-500">
-                        {notification.id}
-                      </div>
-                      <div className="mt-1 text-xs text-slate-500">
-                        {notification.timestamp}
-                      </div>
-                    </td>
-                    <td className="border-b border-slate-200 px-4 py-3 capitalize">
-                      {notification.bucket}
-                    </td>
-                    <td className="border-b border-slate-200 px-4 py-3">
-                      {notification.isUnread ? "yes" : "no"}
-                    </td>
-                    <td className="border-b border-slate-200 px-4 py-3">
-                      {notification.score}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+    <div className="flex h-screen overflow-hidden bg-[#f6f8fc]">
+      {/* SIDEBAR */}
+      <aside className="hidden w-[260px] shrink-0 bg-[#f8fafd] p-4 lg:block">
+        <div className="mb-8 flex items-center gap-3 px-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600 text-white">
+            <FiInbox size={20} />
           </div>
-        ) : (
-          <p className="rounded border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600">
-            No notifications available.
-          </p>
-        )}
-      </section>
-    </main>
+
+          <div>
+            <h1 className="text-xl font-bold">CampusInbox</h1>
+            <p className="text-xs text-slate-500">Student Mail</p>
+          </div>
+        </div>
+
+        <button className="mb-6 flex w-full items-center gap-3 rounded-2xl bg-sky-100 px-5 py-4 text-left font-medium shadow-sm">
+          <FiBell />
+          Compose Notice
+        </button>
+
+        <nav className="space-y-1">
+          <div className="flex items-center justify-between rounded-r-full bg-indigo-100 px-4 py-3 font-semibold text-indigo-700">
+            <span>Inbox</span>
+            <span>{notifications.length}</span>
+          </div>
+
+          <div className="flex items-center justify-between px-4 py-3 text-slate-600 hover:bg-slate-100 rounded-r-full">
+            <span>Placements</span>
+            <span>
+              {notifications.filter((n) => n.bucket === "placement").length}
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between px-4 py-3 text-slate-600 hover:bg-slate-100 rounded-r-full">
+            <span>Academics</span>
+            <span>
+              {notifications.filter((n) => n.bucket === "result").length}
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between px-4 py-3 text-slate-600 hover:bg-slate-100 rounded-r-full">
+            <span>Events</span>
+            <span>
+              {notifications.filter((n) => n.bucket === "event").length}
+            </span>
+          </div>
+        </nav>
+      </aside>
+
+      {/* MAIN */}
+      <main className="flex flex-1 flex-col overflow-hidden">
+        {/* TOP BAR */}
+        <div className="border-b bg-white px-6 py-4">
+          <div className="mx-auto flex max-w-6xl items-center gap-4">
+            <div className="flex flex-1 items-center gap-3 rounded-full bg-[#eaf1fb] px-5 py-3">
+              <svg
+                className="h-5 w-5 text-slate-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M21 21l-4.35-4.35M10 18a8 8 0 100-16 8 8 0 000 16z"
+                />
+              </svg>
+
+              <input
+                placeholder="Search notifications"
+                className="w-full bg-transparent outline-none"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* CATEGORY TABS */}
+        <div className="flex border-b bg-white">
+          <button className="flex flex-1 items-center justify-center gap-2 border-b-4 border-indigo-600 py-4 font-medium text-indigo-600">
+            Placements
+          </button>
+
+          <button className="flex flex-1 items-center justify-center gap-2 py-4 text-slate-500 hover:bg-slate-50">
+            Academics
+          </button>
+
+          <button className="flex flex-1 items-center justify-center gap-2 py-4 text-slate-500 hover:bg-slate-50">
+            Events
+          </button>
+
+          <button className="flex flex-1 items-center justify-center gap-2 py-4 text-slate-500 hover:bg-slate-50">
+            Important
+          </button>
+        </div>
+
+        {/* INBOX */}
+        <div className="flex-1 overflow-y-auto bg-white">
+          {notifications.map((notification) => (
+            <div
+              key={notification.id}
+              className="
+              flex
+              items-center
+              gap-4
+              border-b
+              border-slate-100
+              px-4
+              py-3
+              hover:cursor-pointer
+              hover:bg-slate-50
+              hover:shadow-sm
+            "
+            >
+              {/* Checkbox */}
+              <input type="checkbox" className="h-4 w-4" />
+
+              {/* Star */}
+              <span className="text-slate-300">★</span>
+
+              {/* Sender */}
+              <div className="w-[220px] truncate font-semibold text-slate-800">
+                {notification.bucket === "placement"
+                  ? "Placement Cell"
+                  : notification.bucket === "event"
+                    ? "Event Committee"
+                    : "Academic Office"}
+              </div>
+
+              {/* Subject */}
+              <div className="flex-1 truncate">
+                <span
+                  className={
+                    notification.isUnread
+                      ? "font-bold text-slate-900"
+                      : "font-medium text-slate-700"
+                  }
+                >
+                  {notification.title}
+                </span>
+
+                <span className="text-slate-500">
+                  {" "}
+                  - {notification.message}
+                </span>
+              </div>
+
+              {/* Score Badge */}
+              <div className="hidden rounded-full bg-indigo-50 px-2 py-1 text-xs font-semibold text-indigo-600 md:block">
+                {notification.score}
+              </div>
+
+              {/* Date */}
+              <div className="w-[90px] text-right text-xs font-medium text-slate-500">
+                {new Date(notification.timestamp).toLocaleDateString()}
+              </div>
+            </div>
+          ))}
+        </div>
+      </main>
+    </div>
   );
 }
