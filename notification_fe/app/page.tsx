@@ -46,9 +46,12 @@ export default async function Home() {
   return (
     <main className="mx-auto min-h-screen w-full max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
       <header className="mb-6 border-b border-slate-200 pb-4">
-        <h1 className="text-2xl font-semibold text-slate-950">Priority Inbox</h1>
+        <h1 className="text-2xl font-semibold text-slate-950">
+          Priority Inbox
+        </h1>
         <p className="mt-2 text-sm text-slate-600">
-          Stage 1: fetched notifications through the local middleware-backed route.
+          Stage 1: fetched notifications through the local middleware-backed
+          route.
         </p>
       </header>
 
@@ -68,31 +71,54 @@ export default async function Home() {
       </section>
 
       <section>
-        <h2 className="mb-3 text-lg font-semibold text-slate-950">Notifications</h2>
+        <h2 className="mb-3 text-lg font-semibold text-slate-950">
+          Notifications
+        </h2>
         {notifications.length > 0 ? (
           <div className="overflow-hidden rounded border border-slate-200 bg-white">
             <table className="w-full border-collapse text-left text-sm">
               <thead className="bg-slate-50 text-slate-600">
                 <tr>
-                  <th className="border-b border-slate-200 px-4 py-3 font-medium">Rank</th>
-                  <th className="border-b border-slate-200 px-4 py-3 font-medium">Title</th>
-                  <th className="border-b border-slate-200 px-4 py-3 font-medium">Message</th>
-                  <th className="border-b border-slate-200 px-4 py-3 font-medium">Bucket</th>
-                  <th className="border-b border-slate-200 px-4 py-3 font-medium">Unread</th>
-                  <th className="border-b border-slate-200 px-4 py-3 font-medium">Score</th>
+                  <th className="border-b border-slate-200 px-4 py-3 font-medium">
+                    Rank
+                  </th>
+                  <th className="border-b border-slate-200 px-4 py-3 font-medium">
+                    Title
+                  </th>
+                  <th className="border-b border-slate-200 px-4 py-3 font-medium">
+                    Message
+                  </th>
+                  <th className="border-b border-slate-200 px-4 py-3 font-medium">
+                    Bucket
+                  </th>
+                  <th className="border-b border-slate-200 px-4 py-3 font-medium">
+                    Unread
+                  </th>
+                  <th className="border-b border-slate-200 px-4 py-3 font-medium">
+                    Score
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {notifications.map((notification, index) => (
-                  <tr key={notification.id} className="align-top odd:bg-white even:bg-slate-50/60">
-                    <td className="border-b border-slate-200 px-4 py-3">{index + 1}</td>
+                  <tr
+                    key={notification.id}
+                    className="align-top odd:bg-white even:bg-slate-50/60"
+                  >
+                    <td className="border-b border-slate-200 px-4 py-3">
+                      {index + 1}
+                    </td>
                     <td className="border-b border-slate-200 px-4 py-3 font-medium text-slate-950">
                       {notification.title}
                     </td>
                     <td className="border-b border-slate-200 px-4 py-3 text-slate-700">
                       {notification.message}
-                      <div className="mt-1 text-xs text-slate-500">{notification.id}</div>
-                      <div className="mt-1 text-xs text-slate-500">{notification.timestamp}</div>
+                      <div className="mt-1 text-xs text-slate-500">
+                        {notification.id}
+                      </div>
+                      <div className="mt-1 text-xs text-slate-500">
+                        {notification.timestamp}
+                      </div>
                     </td>
                     <td className="border-b border-slate-200 px-4 py-3 capitalize">
                       {notification.bucket}
@@ -100,7 +126,9 @@ export default async function Home() {
                     <td className="border-b border-slate-200 px-4 py-3">
                       {notification.isUnread ? "yes" : "no"}
                     </td>
-                    <td className="border-b border-slate-200 px-4 py-3">{notification.score}</td>
+                    <td className="border-b border-slate-200 px-4 py-3">
+                      {notification.score}
+                    </td>
                   </tr>
                 ))}
               </tbody>

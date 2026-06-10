@@ -240,7 +240,7 @@ function comparePriority(a: PriorityInboxNotification, b: PriorityInboxNotificat
 class FixedSizeTopN {
   private heap: PriorityInboxNotification[] = [];
 
-  constructor(private readonly limit: number) {}
+  constructor(private readonly limit: number) { }
 
   push(notification: PriorityInboxNotification) {
     if (this.limit <= 0) {
