@@ -54,6 +54,10 @@ export default function NotificationDashboard({
     (n) => n.bucket === "placement",
   ).length;
 
+  const eventCount = notifications.filter((n) => n.bucket === "event").length;
+
+  const resultCount = notifications.filter((n) => n.bucket === "result").length;
+
   const categoryIcon = (bucket: string) => {
     switch (bucket) {
       case "placement":
@@ -83,8 +87,8 @@ export default function NotificationDashboard({
   return (
     <div className="flex min-h-screen bg-slate-50 text-slate-900">
       {/* Sidebar */}
-      <aside className="fixed left-0 top-0 hidden h-screen w-72 border-r border-slate-200 bg-white lg:flex lg:flex-col">
-        <div className="flex h-16 items-center border-b px-6">
+      <aside className="fixed left-0 top-0 hidden h-screen w-72 bg-white shadow-[0_0_24px_rgba(15,23,42,0.06)] lg:flex lg:flex-col">
+        <div className="flex h-16 items-center px-6">
           <h1 className="text-xl font-bold">
             CAMPUS
             <span className="font-light text-indigo-500">HUB</span>
@@ -92,9 +96,55 @@ export default function NotificationDashboard({
         </div>
 
         <nav className="flex-1 p-4 space-y-2">
-          <button className="flex w-full items-center gap-3 rounded-xl bg-slate-900 px-4 py-3 text-white">
+          <button
+            onClick={() => setFilter("all")}
+            className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 transition ${
+              filter === "all"
+                ? "bg-slate-900 text-white"
+                : "text-slate-500 hover:bg-slate-100"
+            }`}
+          >
             <FiBell />
             Inbox
+          </button>
+
+          <button
+            onClick={() => setFilter("placement")}
+            className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 transition ${
+              filter === "placement"
+                ? "bg-indigo-100 text-indigo-700"
+                : "text-slate-500 hover:bg-slate-100"
+            }`}
+          >
+            <FiBriefcase />
+            Placements
+            <span className="ml-auto text-xs">{placementCount}</span>
+          </button>
+
+          <button
+            onClick={() => setFilter("result")}
+            className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 transition ${
+              filter === "result"
+                ? "bg-emerald-100 text-emerald-700"
+                : "text-slate-500 hover:bg-slate-100"
+            }`}
+          >
+            <FiBookOpen />
+            Academics
+            <span className="ml-auto text-xs">{resultCount}</span>
+          </button>
+
+          <button
+            onClick={() => setFilter("event")}
+            className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 transition ${
+              filter === "event"
+                ? "bg-amber-100 text-amber-700"
+                : "text-slate-500 hover:bg-slate-100"
+            }`}
+          >
+            <FiCalendar />
+            Events
+            <span className="ml-auto text-xs">{eventCount}</span>
           </button>
 
           <button className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-slate-500 hover:bg-slate-100">
@@ -111,11 +161,12 @@ export default function NotificationDashboard({
 
       <main className="flex-1 lg:pl-72">
         {/* Header */}
-        <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/70 backdrop-blur-xl">
+        <header className="sticky top-0 z-50 bg-white/80 shadow-sm backdrop-blur-xl">
           <div className="flex h-16 items-center justify-between px-6">
             <div>
-              <h2 className="font-bold">Priority Inbox</h2>
-              <p className="text-xs text-slate-500">Smart notification feed</p>
+              <h2 className="bg-gradient-to-r from-black via-slate-700 to-slate-400 bg-clip-text text-2xl font-black tracking-tight text-transparent">
+                Priority Inbox
+              </h2>
             </div>
 
             <div className="relative w-72">
@@ -125,7 +176,7 @@ export default function NotificationDashboard({
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search..."
-                className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-10 pr-4 text-sm outline-none focus:border-indigo-500"
+                className="w-full rounded-xl bg-white py-2 pl-10 pr-4 text-sm outline-none shadow-[0_0_0_1px_rgba(148,163,184,0.35)] focus:shadow-[0_0_0_1px_rgba(79,70,229,0.85)]"
               />
             </div>
           </div>
@@ -134,7 +185,7 @@ export default function NotificationDashboard({
         <div className="p-6">
           {/* Stats */}
           <div className="mb-8 grid gap-4 md:grid-cols-3">
-            <div className="rounded-2xl border bg-white p-5 shadow-sm">
+            <div className="rounded-2xl bg-white p-5 shadow-sm">
               <p className="text-xs uppercase text-slate-400">
                 Total Notifications
               </p>
@@ -143,14 +194,14 @@ export default function NotificationDashboard({
               </h3>
             </div>
 
-            <div className="rounded-2xl border bg-white p-5 shadow-sm">
+            <div className="rounded-2xl bg-white p-5 shadow-sm">
               <p className="text-xs uppercase text-slate-400">Unread</p>
               <h3 className="mt-2 text-3xl font-bold text-indigo-600">
                 {unreadCount}
               </h3>
             </div>
 
-            <div className="rounded-2xl border bg-white p-5 shadow-sm">
+            <div className="rounded-2xl bg-white p-5 shadow-sm">
               <p className="text-xs uppercase text-slate-400">
                 Placement Updates
               </p>
@@ -158,34 +209,12 @@ export default function NotificationDashboard({
             </div>
           </div>
 
-          {/* Filters */}
-          <div className="mb-6 flex flex-wrap gap-2">
-            {[
-              { id: "all", label: "All" },
-              { id: "placement", label: "Placement" },
-              { id: "event", label: "Events" },
-              { id: "result", label: "Academic" },
-            ].map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setFilter(item.id)}
-                className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                  filter === item.id
-                    ? "bg-slate-900 text-white"
-                    : "border bg-white text-slate-600 hover:bg-slate-100"
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-
           {/* Notifications */}
           <div className="space-y-4">
             {filteredNotifications.map((notif) => (
               <div
                 key={notif.id}
-                className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+                className="group relative overflow-hidden rounded-2xl bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
               >
                 <div className="absolute left-0 top-0 h-full w-1 bg-gradient-to-b from-indigo-500 to-violet-500" />
 
